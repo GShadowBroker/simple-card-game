@@ -4,7 +4,7 @@ import java.util.*;
 
 import deck.Card;
 
-public interface StackOfCards {
+public interface Stackable {
 	public List<Card> getAll();
 
 	public Card get(int index) throws IndexOutOfBoundsException;

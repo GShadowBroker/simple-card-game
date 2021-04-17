@@ -3,11 +3,12 @@ package deck;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
-import interfaces.StackOfCards;
+import interfaces.Stackable;
 
-public class Hand implements Serializable, StackOfCards {
+public class Hand implements Serializable, Iterable<Card>, Stackable {
 	private static final long serialVersionUID = -6610474645489634115L;
 	private ArrayList<Card> cardsInHand = new ArrayList<Card>(5);
 
@@ -46,5 +47,10 @@ public class Hand implements Serializable, StackOfCards {
 	
 	public String toString() {
 		return cardsInHand.toString();
+	}
+
+	@Override
+	public Iterator<Card> iterator() {
+		return cardsInHand.iterator();
 	}
 }

@@ -1,10 +1,9 @@
 package game;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 import deck.Creature;
+import exceptions.NoMoreCardsToDrawException;
 
 public class Board implements Serializable {
 	private static final long serialVersionUID = -5731207966560116089L;
@@ -13,14 +12,7 @@ public class Board implements Serializable {
 	private Player turnPlayer;
 	private Player oppositeTurnPlayer;
 	private int turn = 1;
-	private List<Creature> p1Field = new ArrayList<Creature>(5);
-	private List<Creature> p2Field = new ArrayList<Creature>(5);
-	private int p1Hp = 20;
-	private int p2Hp = 20;
-	private int p1Mana = 1;
-	private int p1AvailableMana = 1;
-	private int p2Mana = 1;
-	private int p2AvailableMana = 1;
+	private int round = 1;
 
 	public Board(Player player1, Player player2) {
 		setP1(player1);
@@ -77,81 +69,25 @@ public class Board implements Serializable {
 		return turn;
 	}
 
-	public List<Creature> getP1Field() {
-		return p1Field;
-	}
-
-	public void setP1Field(List<Creature> p1Field) {
-		this.p1Field = p1Field;
-	}
-
-	public List<Creature> getP2Field() {
-		return p2Field;
-	}
-
-	public void setP2Field(List<Creature> p2Field) {
-		this.p2Field = p2Field;
-	}
-
-	public int getP1Hp() {
-		return p1Hp;
-	}
-
-	public void setP1Hp(int p1Hp) {
-		this.p1Hp = p1Hp;
-	}
-
-	public int getP2Hp() {
-		return p2Hp;
-	}
-
-	public void setP2Hp(int p2Hp) {
-		this.p2Hp = p2Hp;
-	}
-
-	public int getP1Mana() {
-		return p1Mana;
-	}
-
-	public void setP1Mana(int p1Mana) {
-		this.p1Mana = p1Mana;
-	}
-
-	public int getP2Mana() {
-		return p2Mana;
-	}
-
-	public void setP2Mana(int p2Mana) {
-		this.p2Mana = p2Mana;
-	}
-
-	public int getP1AvailableMana() {
-		return p1AvailableMana;
-	}
-
-	public void setP1AvailableMana(int p1AvailableMana) {
-		this.p1AvailableMana = p1AvailableMana;
-	}
-
-	public int getP2AvailableMana() {
-		return p2AvailableMana;
-	}
-
-	public void setP2AvailableMana(int p2AvailableMana) {
-		this.p2AvailableMana = p2AvailableMana;
+	public int getRound() {
+		return round;
 	}
 
 	// Public Methods
-	public void passTurn() {
+	public void passTurn() throws NoMoreCardsToDrawException {
 
 		if (turnPlayer.equals(player1)) {
 			setTurnPlayer(player2);
 			setOppositeTurnPlayer(player1);
 
-			setP2Mana(getP2Mana() + 1);
-			setP2AvailableMana(p2Mana);
+			if (round > 1) {
+				player2.setMana(player2.getMana() + 1);
+				player2.setAvailableMana(player2.getMana());
+			}
+			
+			player2.draw();
 
-			for (Creature card : p2Field) {
+			for (Creature card : player2.getField()) {
 				if (card.isBattleSick()) {
 					card.setBattleSick(false);
 				}
@@ -161,16 +97,23 @@ public class Board implements Serializable {
 			setTurnPlayer(player1);
 			setOppositeTurnPlayer(player1);
 
-			setP1Mana(getP1Mana() + 1);
-			setP1AvailableMana(p1Mana);
+			if (round > 1) {
+				player1.setMana(player1.getMana() + 1);
+				player1.setAvailableMana(player1.getMana());
+			}
+			
+			player1.draw();
 
-			for (Creature card : p2Field) {
+			for (Creature card : player1.getField()) {
 				if (card.isBattleSick()) {
 					card.setBattleSick(false);
 				}
 			}
 		}
 
-		turn++;
+		round++;
+		if (round % 2 != 0) {
+			turn++;
+		}
 	}
 }

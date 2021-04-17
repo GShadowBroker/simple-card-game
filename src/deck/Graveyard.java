@@ -2,11 +2,12 @@ package deck;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
-import interfaces.StackOfCards;
+import interfaces.Stackable;
 
-public class Graveyard implements StackOfCards {
+public class Graveyard implements Stackable, Iterable<Card> {
 	private List<Card> cardsInGrave = new ArrayList<Card>(30);
 
 	@Override
@@ -52,6 +53,11 @@ public class Graveyard implements StackOfCards {
 	@Override
 	public String toString() {
 		return cardsInGrave.toString();
+	}
+
+	@Override
+	public Iterator<Card> iterator() {
+		return cardsInGrave.iterator();
 	}
 
 }

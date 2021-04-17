@@ -12,6 +12,7 @@ import deck.Hand;
 import deck.Spell;
 import exceptions.BoardIsFullException;
 import exceptions.NoMoreCardsToDrawException;
+import exceptions.NotEnoughManaException;
 
 public class Player implements Serializable {
 	private static final long serialVersionUID = 6309854488555703288L;
@@ -19,6 +20,10 @@ public class Player implements Serializable {
 	private Deck deck;
 	private Hand hand;
 	private Graveyard graveyard;
+	private List<Creature> field = new ArrayList<Creature>(5);
+	private int hp = 20;
+	private int mana = 1;
+	private int availableMana = 1;
 
 	public Player(String name, Deck deck, Hand hand, Graveyard graveyard) {
 		setName(name);
@@ -60,7 +65,50 @@ public class Player implements Serializable {
 		this.graveyard = graveyard;
 	}
 
+	public List<Creature> getField() {
+		return field;
+	}
+
+	public void setField(List<Creature> field) {
+		this.field = field;
+	}
+
+	public int getHp() {
+		return hp;
+	}
+
+	public void setHp(int hp) {
+		this.hp = hp;
+	}
+
+	public int getMana() {
+		return mana;
+	}
+
+	public void setMana(int mana) {
+		this.mana = mana;
+	}
+
+	public int getAvailableMana() {
+		return availableMana;
+	}
+
+	public void setAvailableMana(int availableMana) {
+		this.availableMana = availableMana;
+	}
+
 	// Public methods
+
+	public void reset() {
+		deck.reset();
+		hand.getAll().clear();
+		graveyard.getAll().clear();
+		field.clear();
+		setHp(20);
+		setMana(1);
+		setAvailableMana(getMana());
+	}
+
 	public List<Card> draw() throws NoMoreCardsToDrawException {
 		List<Card> cardsDrawn = new ArrayList<Card>(1);
 
@@ -97,23 +145,29 @@ public class Player implements Serializable {
 	}
 
 	public void playCard(int handIndex, Board board)
-			throws BoardIsFullException, IndexOutOfBoundsException, NoMoreCardsToDrawException {
+			throws BoardIsFullException, IndexOutOfBoundsException, NoMoreCardsToDrawException, NotEnoughManaException {
 
 		Card card = hand.get(handIndex);
+//		
+		if (card.getCost() > availableMana) {
+			throw new NotEnoughManaException();
+		}
 
 		System.out.printf("%s has played %s!\n", name, card);
-
-		boolean isEven = board.getTurn() % 2 == 0;
-		List<Creature> field = isEven ? board.getP2Field() : board.getP1Field();
 
 		// If board is full, throw exception
 		if (field.size() >= 5) {
 			throw new BoardIsFullException();
 		}
 
+		// Subtract mana
+		setAvailableMana(getAvailableMana() - card.getCost());
+		// remove from hand
 		hand.remove(handIndex);
+		// activate onplay effect
 		card.onPlay(board);
 
+		// if creature, add to field. If spell, send to grave and activate onsenttograve
 		if (card instanceof Creature) {
 			field.add((Creature) card);
 			return;

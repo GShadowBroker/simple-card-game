@@ -3,9 +3,9 @@ package deck;
 import java.io.Serializable;
 import java.util.*;
 
-import interfaces.StackOfCards;
+import interfaces.Stackable;
 
-public class Deck implements Serializable, StackOfCards {
+public class Deck implements Iterable<Card>, Stackable, Serializable {
 	private static final long serialVersionUID = 6844087467977655447L;
 	private List<Card> deckList = new ArrayList<Card>(30);
 	private List<Card> cardsInDeck = new ArrayList<Card>(30);
@@ -72,9 +72,14 @@ public class Deck implements Serializable, StackOfCards {
 		cardsInDeck = deckList;
 		shuffle();
 	}
-	
+
 	@Override
 	public String toString() {
 		return cardsInDeck.toString();
+	}
+
+	@Override
+	public Iterator<Card> iterator() {
+		return cardsInDeck.iterator();
 	}
 }
